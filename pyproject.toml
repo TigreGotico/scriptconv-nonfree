@@ -1,0 +1,38 @@
+[build-system]
+requires = ["setuptools>=77.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "scriptconv-nonfree"
+dynamic = ["version"]
+description = "scriptconv phonemizer backends whose code, data or dependencies are non-commercial or carry no licence grant"
+readme = "README.md"
+requires-python = ">=3.11"
+license = "Apache-2.0 AND MIT AND CC-BY-NC-4.0 AND LicenseRef-AfricaG2P-Data"
+license-files = ["LICENSE"]
+dependencies = ["scriptconv[phonemizers]>=0.0.4a88"]
+authors = [
+    { name = "TigreGotico", email = "contact@tigregotico.com" }
+]
+keywords = ["g2p", "phonemizer", "tts", "scriptconv", "arabic", "mantoq", "halabi", "iqra", "vietnamese", "african-languages"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Text Processing :: Linguistic",
+]
+
+[project.urls]
+Homepage = "https://github.com/TigreGotico/scriptconv-nonfree"
+Repository = "https://github.com/TigreGotico/scriptconv-nonfree"
+Issues = "https://github.com/TigreGotico/scriptconv-nonfree/issues"
+
+[tool.setuptools.packages.find]
+include = ["scriptconv_nonfree*"]
+
+[tool.setuptools.dynamic]
+version = {attr = "scriptconv_nonfree.version.__version__"}
