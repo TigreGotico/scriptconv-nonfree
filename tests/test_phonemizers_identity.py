@@ -18,8 +18,8 @@ ROOT = Path(__file__).resolve().parent.parent
 
 class TestErrors:
     @pytest.mark.parametrize("resolve, lang", [
-        (AfricaG2PPhonemizer.get_lang, "zzz"),
-        (GhanaG2PPhonemizer.get_lang, "zzz"),
+        (AfricaG2PPhonemizer().get_lang, "zzz"),
+        (GhanaG2PPhonemizer().get_lang, "zzz"),
     ])
     def test_each_wrapper_with_its_own_check_raises_the_same_error(self, resolve, lang):
         with pytest.raises(UnsupportedLanguageError, match=lang):
@@ -27,12 +27,12 @@ class TestErrors:
 
 
 class TestIdentity:
-    def test_vendored_code_reports_the_scriptconv_version(self):
-        from scriptconv import version
+    def test_vendored_code_reports_this_package(self):
+        from scriptconv_nonfree import version
         identity = MantoqPhonemizer().identity("ar")
         assert (identity.backend, identity.distribution, identity.version) == \
-            ("mantoq", "scriptconv", metadata.version("scriptconv"))
-        assert identity.version == version.VERSION_STR
+            ("mantoq", "scriptconv-nonfree", metadata.version("scriptconv-nonfree"))
+        assert identity.version == version.__version__
 
 
 class TestVietnameseNeedsAnOlderPython:

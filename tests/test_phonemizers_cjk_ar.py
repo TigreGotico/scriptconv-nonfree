@@ -19,7 +19,8 @@ class TestLicensingStubs(unittest.TestCase):
         self.assertTrue((base / "mantoq" / "LICENSE.cc-by-nc-4.0").is_file())
         self.assertTrue((base / "iqra_phonetiser" / "LICENSE.md").is_file())
         self.assertTrue((base / "iqra_phonetiser" / "LICENSE.cc-by-nc-4.0").is_file())
-        self.assertTrue((base / "africa_g2p" / "LICENSE.md").is_file())
+        self.assertFalse((base / "africa_g2p").exists())
+        self.assertTrue(pathlib.Path("LICENSE.africa-g2p-data.md").is_file())
 
     def test_quarantine_not_imported_at_package_import(self):
         import subprocess, sys
