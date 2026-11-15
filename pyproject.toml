@@ -9,7 +9,16 @@ description = "scriptconv phonemizer backends whose code, data or dependencies a
 readme = "README.md"
 requires-python = ">=3.11"
 license = "Apache-2.0 AND MIT AND CC-BY-NC-4.0 AND LicenseRef-AfricaG2P-Data"
-license-files = ["LICENSE"]
+license-files = [
+    "LICENSE",
+    "scriptconv_nonfree/phonemizers/_vendored/mantoq/LICENSE.md",
+    "scriptconv_nonfree/phonemizers/_vendored/mantoq/LICENSE.mantoq",
+    "scriptconv_nonfree/phonemizers/_vendored/mantoq/LICENSE.cc-by-nc-4.0",
+    "scriptconv_nonfree/phonemizers/_vendored/iqra_phonetiser/LICENSE.md",
+    "scriptconv_nonfree/phonemizers/_vendored/iqra_phonetiser/LICENSE.cc-by-nc-4.0",
+    "scriptconv_nonfree/phonemizers/_vendored/africa_g2p/LICENSE.md",
+    "scriptconv_nonfree/phonemizers/_vendored/africa_g2p/DATA_LICENSE.md",
+]
 dependencies = ["scriptconv[phonemizers]>=0.0.4a88"]
 authors = [
     { name = "TigreGotico", email = "contact@tigregotico.com" }
@@ -26,6 +35,12 @@ classifiers = [
     "Topic :: Text Processing :: Linguistic",
 ]
 
+[project.optional-dependencies]
+ar-phonemizers = ["ovos-number-parser"]
+vi = ["viphoneme; python_version<'3.12'", "vinorm; python_version<'3.12'", "underthesea; python_version<'3.12'", "eng_to_ipa; python_version<'3.12'"]
+ghana = ["ghana-g2p>=0.1.1"]
+test = ["pytest", "pytest-timeout", "ovos-number-parser", "ghana-g2p>=0.1.1", "viphoneme; python_version<'3.12'", "vinorm; python_version<'3.12'", "underthesea; python_version<'3.12'", "eng_to_ipa; python_version<'3.12'", "linguatag[langcodes]>=0.2.3a1", "packaging"]
+
 [project.urls]
 Homepage = "https://github.com/TigreGotico/scriptconv-nonfree"
 Repository = "https://github.com/TigreGotico/scriptconv-nonfree"
@@ -36,3 +51,18 @@ include = ["scriptconv_nonfree*"]
 
 [tool.setuptools.dynamic]
 version = {attr = "scriptconv_nonfree.version.__version__"}
+
+[tool.setuptools.package-data]
+"scriptconv_nonfree.phonemizers._vendored.mantoq" = ["LICENSE*"]
+"scriptconv_nonfree.phonemizers._vendored.iqra_phonetiser" = ["LICENSE*"]
+"scriptconv_nonfree.phonemizers._vendored.africa_g2p" = [
+    "LICENSE.md", "DATA_LICENSE.md",
+    "languages/*.json", "data/*.json",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+timeout = 150
+
+[tool.ruff]
+extend-exclude = ["*/_vendored/*"]
