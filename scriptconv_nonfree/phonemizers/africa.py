@@ -20,9 +20,11 @@ one-notation engine like Cotovía or Vosk.
 
 Each rule table records where its rules come from in a ``confidence`` field.
 A table transcribed from a chart (Omniglot, or Hartell (ed.), *Alphabets of
-Africa*, UNESCO 1993) is used as is. Any other table, for example one that an
-LLM drafted from corpus text (``llm-draft``) or corrected (``tts-reviewed``),
-is a draft: the backend refuses it unless the caller passes
+Africa*, UNESCO 1993) is used as is. So is a ``tts-reviewed`` table: a chart
+transcription with corrections that an LLM proposed and no native speaker has
+checked, which measures closer to WikiPron than the chart it replaces (Ewe).
+Any other table, for example one that an LLM drafted from corpus text
+(``llm-draft``), is a draft: the backend refuses it unless the caller passes
 ``allow_draft_rules=True``. :class:`~scriptconv_nonfree.phonemizers.ghana.GhanaG2PPhonemizer`
 applies the same rule to the table that ghana-g2p loads.
 
@@ -41,14 +43,15 @@ from scriptconv.phonemizers.base import (
 )
 from scriptconv.phonemizers.enums import Alphabet
 
-__all__ = ["CHART_CONFIDENCE", "AfricaG2PPhonemizer", "draft_status", "refuse_draft"]
+__all__ = ["SERVED_CONFIDENCE", "AfricaG2PPhonemizer", "draft_status", "refuse_draft"]
 
-CHART_CONFIDENCE = frozenset({"omniglot", "high", "medium", "hand-verified"})
-"""The ``confidence`` values of africa-g2p tables transcribed from a chart.
+SERVED_CONFIDENCE = frozenset({"omniglot", "high", "medium", "hand-verified", "tts-reviewed"})
+"""The ``confidence`` values of africa-g2p tables that are served by default.
 
 Each table with one of these values names an Omniglot chart or a page of
-*Alphabets of Africa* in its ``source`` field. Every other value is a draft,
-also a value that a later africa-g2p adds."""
+*Alphabets of Africa* in its ``source`` field; ``tts-reviewed`` is such a
+chart with LLM-proposed corrections. Every other value is a draft, also a
+value that a later africa-g2p adds."""
 
 
 def _africa_g2p():
@@ -66,7 +69,7 @@ def _africa_g2p():
 def draft_status(table: str) -> str | None:
     """The ``confidence`` of africa-g2p's rule *table* when it is a draft, else ``None``."""
     confidence = _africa_g2p().loader.load_rules(table).get("confidence")
-    return None if confidence in CHART_CONFIDENCE else str(confidence)
+    return None if confidence in SERVED_CONFIDENCE else str(confidence)
 
 
 def refuse_draft(table: str, target_lang: str, backend: str) -> None:
@@ -75,12 +78,12 @@ def refuse_draft(table: str, target_lang: str, backend: str) -> None:
     if status is not None:
         raise UnsupportedLanguageError(
             f"{backend}: the africa-g2p {_africa_g2p().__version__} rule table "
-            f"{table!r} for {target_lang!r} has confidence {status!r}: it is a "
-            f"draft, not a chart transcription. Pass allow_draft_rules=True to use it")
+            f"{table!r} for {target_lang!r} has confidence {status!r}, so it is a "
+            f"draft. Pass allow_draft_rules=True to use it")
 
 
 @lru_cache(maxsize=1)
-def _chart_tables() -> tuple[str, ...]:
+def _served_tables() -> tuple[str, ...]:
     return tuple(table for table in _africa_g2p().available_languages()
                  if draft_status(table) is None)
 
@@ -119,7 +122,7 @@ class AfricaG2PPhonemizer(BasePhonemizer):
         """Return africa-g2p's rule tables, the drafts only with *allow_draft_rules*."""
         if allow_draft_rules:
             return _africa_g2p().available_languages()
-        return list(_chart_tables())
+        return list(_served_tables())
 
     def get_lang(self, target_lang: str) -> str:
         """

@@ -12,6 +12,7 @@ from pathlib import Path
 from unittest import mock
 
 import africa_g2p
+import pytest
 from scriptconv.phonemizers import (
     PHONEMIZER_REGISTRY,
     Alphabet,
@@ -22,6 +23,11 @@ from scriptconv.phonemizers import (
 )
 
 from scriptconv_nonfree.phonemizers.africa import AfricaG2PPhonemizer
+from scriptconv_nonfree.phonemizers.ghana import GhanaG2PPhonemizer
+
+# The confidence values served without allow_draft_rules, written out here
+# rather than read from the module under test.
+SERVED = ("omniglot", "high", "hand-verified", "medium", "tts-reviewed")
 
 REGION_TABLES = ("hau-nigeria", "hau-niger", "dop-benin", "dop-benin2", "ngb-zaire",
                  "ngb-zaire2", "sag-congo", "sag-central_african_republic",
@@ -40,9 +46,9 @@ class TestAfricaG2PPhonemizer(unittest.TestCase):
         p = AfricaG2PPhonemizer(alphabet=Alphabet.IPA)
         self.assertEqual(p.phonemize_string("ọmọ", "yor"), "ɔ m ɔ")
 
-    def test_ipa_and_native_output_of_a_draft_table(self):
-        ipa = AfricaG2PPhonemizer(alphabet=Alphabet.IPA, allow_draft_rules=True)
-        native = AfricaG2PPhonemizer(alphabet=Alphabet.AFRICA_G2P, allow_draft_rules=True)
+    def test_ipa_and_native_output_of_a_corrected_chart(self):
+        ipa = AfricaG2PPhonemizer(alphabet=Alphabet.IPA)
+        native = AfricaG2PPhonemizer(alphabet=Alphabet.AFRICA_G2P)
         self.assertEqual(ipa.phonemize_string("Akwaaba", "twi"), "a kʷ a a b a")
         self.assertEqual(native.phonemize_string("Akwaaba", "twi"), "a kw a a b a")
 
@@ -126,30 +132,30 @@ class TestDraftTables(unittest.TestCase):
                                     f"africa-g2p {metadata.version('africa-g2p')} "):
             AfricaG2PPhonemizer().get_lang("aab")
 
-    def test_an_llm_corrected_chart_is_a_draft(self):
-        self.assertEqual(_confidence_by_table()["twi"], "tts-reviewed")
-        with self.assertRaisesRegex(UnsupportedLanguageError, "'tts-reviewed'"):
-            AfricaG2PPhonemizer().phonemize_string("Akwaaba", "twi")
-
-    def test_a_confidence_value_nobody_listed_is_a_draft(self):
-        with mock.patch.object(africa_g2p.loader, "load_rules",
-                               return_value={"confidence": "native-reviewed"}), \
-                self.assertRaisesRegex(UnsupportedLanguageError, "'native-reviewed'"):
-            AfricaG2PPhonemizer().get_lang("yor")
+    def test_the_corrected_charts_are_served_by_default(self):
+        # Dagbani, Ewe, Fante, Ga and Twi: Omniglot charts with corrections an
+        # LLM proposed. The Ewe table scores closer to WikiPron than the chart.
+        confidence = _confidence_by_table()
+        corrected = sorted(t for t, c in confidence.items() if c == "tts-reviewed")
+        self.assertEqual(corrected, ["dag", "ewe", "fat", "gaa", "twi"])
+        p = AfricaG2PPhonemizer()
+        for table in corrected:
+            self.assertEqual(p.get_lang(table), table)
 
     def test_get_phonemizer_passes_the_flag(self):
         p = get_phonemizer(Phonemizer.AFRICA_G2P, Alphabet.IPA, allow_draft_rules=True)
-        self.assertEqual(p.phonemize_string("Akwaaba", "twi"), "a kʷ a a b a")
+        expected = africa_g2p.AfricaPipeline(lang="aab", output="ipa").run("aba", sep=" ")
+        self.assertEqual(p.phonemize_string("aba", "aab"), expected)
 
-    def test_supported_langs_are_the_chart_tables(self):
+    def test_supported_langs_are_the_served_tables(self):
         confidence = _confidence_by_table()
-        chart = sorted(t for t, c in confidence.items()
-                       if c in ("omniglot", "high", "medium", "hand-verified"))
-        self.assertEqual(sorted(AfricaG2PPhonemizer.supported_langs()), chart)
+        served = sorted(t for t, c in confidence.items() if c in SERVED)
+        self.assertEqual(sorted(AfricaG2PPhonemizer.supported_langs()), served)
         self.assertEqual(sorted(AfricaG2PPhonemizer.supported_langs(allow_draft_rules=True)),
                          sorted(confidence))
+        self.assertIn("twi", served)
         self.assertIn("aab", confidence)
-        self.assertNotIn("aab", chart)
+        self.assertNotIn("aab", served)
 
 
 class TestRegionTables(unittest.TestCase):
@@ -220,6 +226,37 @@ class TestAfricaG2PRegistration(unittest.TestCase):
         from scriptconv.phonemizers import LANG_DEFAULTS
         for candidates in LANG_DEFAULTS.values():
             self.assertNotIn(Phonemizer.AFRICA_G2P, candidates)
+
+
+def _with_confidence(value):
+    """Every africa-g2p rule table reads as having *value* as its confidence."""
+    return mock.patch.object(africa_g2p.loader, "load_rules", return_value={"confidence": value})
+
+
+BACKENDS = [(AfricaG2PPhonemizer, "yor"), (GhanaG2PPhonemizer, "nzi")]
+
+
+@pytest.mark.parametrize("backend, lang", BACKENDS)
+@pytest.mark.parametrize("value", SERVED)
+def test_a_served_confidence_value_needs_no_flag(value, backend, lang):
+    with _with_confidence(value):
+        assert backend().get_lang(lang) == lang
+
+
+@pytest.mark.parametrize("backend, lang", BACKENDS)
+def test_llm_draft_needs_the_flag(backend, lang):
+    with _with_confidence("llm-draft"):
+        with pytest.raises(UnsupportedLanguageError, match="'llm-draft'.*allow_draft_rules"):
+            backend().get_lang(lang)
+        assert backend(allow_draft_rules=True).get_lang(lang) == lang
+
+
+@pytest.mark.parametrize("backend, lang", BACKENDS)
+def test_a_confidence_value_nobody_listed_needs_the_flag(backend, lang):
+    with _with_confidence("native-reviewed"):
+        with pytest.raises(UnsupportedLanguageError, match="'native-reviewed'"):
+            backend().get_lang(lang)
+        assert backend(allow_draft_rules=True).get_lang(lang) == lang
 
 
 if __name__ == "__main__":

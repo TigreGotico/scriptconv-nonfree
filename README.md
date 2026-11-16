@@ -37,17 +37,19 @@ Each backend's own dependencies install with the extra of the same name, for exa
 
 The `africa` extra installs `africa-g2p>=0.3.5` from PyPI (AfriSpeech/africa-g2p). The `ghana` extra installs `ghana-g2p>=0.1.1` (GhanaNLP/ghana-g2p) with the same africa-g2p floor. ghana-g2p loads the same installed africa-g2p, so the two backends always read the same rule tables. `identity()` of `AfricaG2PPhonemizer` gives the africa-g2p version, and `identity()` of `GhanaG2PPhonemizer` gives the ghana-g2p version.
 
-Each africa-g2p rule table has a `confidence` field. A table with `omniglot`, `high`, `medium` or `hand-verified` is transcribed from an Omniglot chart or from Hartell (ed.), *Alphabets of Africa* (UNESCO, 1993). Every other value is a draft. In africa-g2p 0.3.5, 352 tables are `llm-draft` (an LLM drafted them from corpus text) and 5 are `tts-reviewed` (an LLM corrected the chart transcription, and no native speaker has checked it). The `tts-reviewed` tables are Dagbani, Ewe, Fante, Ga and Twi.
+Each africa-g2p rule table has a `confidence` field. A table with `omniglot`, `high`, `medium` or `hand-verified` is transcribed from an Omniglot chart or from Hartell (ed.), *Alphabets of Africa* (UNESCO, 1993). Both backends serve these tables by default.
 
-Both backends refuse a language whose table is a draft. The error is `UnsupportedLanguageError`, and its message names the table, its `confidence` value and the africa-g2p version. To use draft tables, build the backend with `allow_draft_rules=True`:
+They also serve the 5 `tts-reviewed` tables of africa-g2p 0.3.5 by default: Dagbani, Ewe, Fante, Ga and Twi. Each is an Omniglot chart with corrections that an LLM proposed. No native speaker has checked the corrections. The corrected Ewe table measures closer to WikiPron Ewe than the chart it replaces: phoneme error rate 0.4690 against 0.4948 on 247 words.
+
+Every other value is a draft, also a value that a later africa-g2p adds. In africa-g2p 0.3.5, 352 tables are `llm-draft`: an LLM drafted them from corpus text, and no chart backs them. Both backends refuse a draft table. The error is `UnsupportedLanguageError`, and its message names the table, its `confidence` value and the africa-g2p version. To use draft tables, build the backend with `allow_draft_rules=True`:
 
 ```python
 from scriptconv.phonemizers import Phonemizer, get_phonemizer
 
-get_phonemizer(Phonemizer.AFRICA_G2P, allow_draft_rules=True).phonemize_string("Akwaaba", "twi")
+get_phonemizer(Phonemizer.AFRICA_G2P, allow_draft_rules=True).phonemize_string("aba", "aab")
 ```
 
-`supported_langs()` lists only the chart tables. `supported_langs(allow_draft_rules=True)` lists all of them.
+`supported_langs()` lists the tables served by default: 398 of the 750 tables of africa-g2p 0.3.5, and all 42 ghana-g2p languages. `supported_langs(allow_draft_rules=True)` lists all of them.
 
 ## Licence
 
