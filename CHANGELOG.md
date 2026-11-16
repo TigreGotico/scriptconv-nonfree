@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.2.0a1](https://github.com/TigreGotico/scriptconv-nonfree/tree/0.2.0a1) (2026-11-16)
+
+[Full Changelog](https://github.com/TigreGotico/scriptconv-nonfree/compare/0.1.0a1...0.2.0a1)
+
+**Merged pull requests:**
+
+- feat: use the PyPI africa-g2p for both African backends [\#3](https://github.com/TigreGotico/scriptconv-nonfree/pull/3) ([openvoiceos-bot](https://github.com/openvoiceos-bot))
+
 ## [0.1.0a1](https://github.com/TigreGotico/scriptconv-nonfree/tree/0.1.0a1) (2026-11-15)
 
 [Full Changelog](https://github.com/TigreGotico/scriptconv-nonfree/compare/8649b51f0e9d390f07f1001094a5a841089f835a...0.1.0a1)
