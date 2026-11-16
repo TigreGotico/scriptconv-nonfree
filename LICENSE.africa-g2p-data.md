@@ -1,3 +1,15 @@
+# africa-g2p language data: no licence grant
+
+`LicenseRef-AfricaG2P-Data` in this distribution's licence expression refers to this notice.
+
+The `africa_g2p` and `ghana_g2p` backends of this package load the rule tables of the installed `africa-g2p` distribution (AfriSpeech/africa-g2p, PyPI `africa-g2p`), which the `africa` and `ghana` extras install. ghana-g2p reads the same tables. This package holds no copy of the tables.
+
+The code of africa-g2p is Apache-2.0. Its rule tables (`africa_g2p/languages/*.json` and `africa_g2p/data/*.json` in the installed package) have no licence grant. The africa-g2p wheel ships no licence file. The upstream repository states the terms of the data in `DATA_LICENSE.md`, quoted in full below. That notice covers the tables transcribed from Omniglot charts and from *Alphabets of Africa*. The tables with `"confidence": "llm-draft"` name an LLM draft from the AfriSpeech/africa-corpus text in their `source` field, and the notice does not give terms for them.
+
+The tables are not for commercial use. Keep the attributions below when you redistribute them.
+
+---
+
 # Data sources & licensing
 
 The **code** in this repository is licensed under Apache-2.0 (see `LICENSE`). The

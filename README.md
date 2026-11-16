@@ -28,10 +28,28 @@ This package depends on scriptconv. scriptconv never imports this package when i
 | `halabi` | `HalabiPhonemizer` | `scriptconv_nonfree.phonemizers.ar` | the same vendored phonetiser (CC-BY-NC-4.0) |
 | `iqra` | `IqraPhonemizer` | `scriptconv_nonfree.phonemizers.ar` | the vendored IqraEval phonetiser (CC-BY-NC-4.0) |
 | `viphoneme` | `VIPhonemePhonemizer` | `scriptconv_nonfree.phonemizers.vi` | viphoneme and vinorm, which PyPI marks "Free for non-commercial use" |
-| `africa_g2p` | `AfricaG2PPhonemizer` | `scriptconv_nonfree.phonemizers.africa` | the vendored africa-g2p language data, which has no licence grant |
-| `ghana_g2p` | `GhanaG2PPhonemizer` | `scriptconv_nonfree.phonemizers.ghana` | the africa-g2p language data that ghana-g2p loads |
+| `africa_g2p` | `AfricaG2PPhonemizer` | `scriptconv_nonfree.phonemizers.africa` | the africa-g2p language data, which has no licence grant |
+| `ghana_g2p` | `GhanaG2PPhonemizer` | `scriptconv_nonfree.phonemizers.ghana` | the same africa-g2p language data, which ghana-g2p loads |
 
 Each backend's own dependencies install with the extra of the same name, for example `pip install scriptconv-nonfree[vi]`.
+
+## The African backends
+
+The `africa` extra installs `africa-g2p>=0.3.5` from PyPI (AfriSpeech/africa-g2p). The `ghana` extra installs `ghana-g2p>=0.1.1` (GhanaNLP/ghana-g2p) with the same africa-g2p floor. ghana-g2p loads the same installed africa-g2p, so the two backends always read the same rule tables. `identity()` of `AfricaG2PPhonemizer` gives the africa-g2p version, and `identity()` of `GhanaG2PPhonemizer` gives the ghana-g2p version.
+
+Each africa-g2p rule table has a `confidence` field. A table with `omniglot`, `high`, `medium` or `hand-verified` is transcribed from an Omniglot chart or from Hartell (ed.), *Alphabets of Africa* (UNESCO, 1993). Both backends serve these tables by default.
+
+They also serve the 5 `tts-reviewed` tables of africa-g2p 0.3.5 by default: Dagbani, Ewe, Fante, Ga and Twi. Each is an Omniglot chart with corrections that an LLM proposed. No native speaker has checked the corrections. The corrected Ewe table measures closer to WikiPron Ewe than the chart it replaces: phoneme error rate 0.4690 against 0.4948 on 247 words.
+
+Every other value is a draft, also a value that a later africa-g2p adds. In africa-g2p 0.3.5, 352 tables are `llm-draft`: an LLM drafted them from corpus text, and no chart backs them. Both backends refuse a draft table. The error is `UnsupportedLanguageError`, and its message names the table, its `confidence` value and the africa-g2p version. To use draft tables, build the backend with `allow_draft_rules=True`:
+
+```python
+from scriptconv.phonemizers import Phonemizer, get_phonemizer
+
+get_phonemizer(Phonemizer.AFRICA_G2P, allow_draft_rules=True).phonemize_string("aba", "aab")
+```
+
+`supported_langs()` lists the tables served by default: 398 of the 750 tables of africa-g2p 0.3.5, and all 42 ghana-g2p languages. `supported_langs(allow_draft_rules=True)` lists all of them.
 
 ## Licence
 
@@ -43,8 +61,8 @@ The package holds files under several licences. The SPDX expression is `Apache-2
 | `scriptconv_nonfree/phonemizers/_vendored/mantoq/num2words.py` | Apache-2.0 | `LICENSE`. Written for scriptconv on top of ovos-number-parser. |
 | every other file in `scriptconv_nonfree/phonemizers/_vendored/mantoq/` | MIT | `LICENSE.mantoq` in that directory. Upstream: mush42/mantoq. |
 | `scriptconv_nonfree/phonemizers/_vendored/iqra_phonetiser/` | CC-BY-NC-4.0 | `LICENSE.md` and `LICENSE.cc-by-nc-4.0` in that directory. Upstream: Iqra-Eval/MSA_phonetiser, a fork of Arabic-Phonetiser. |
-| `scriptconv_nonfree/phonemizers/_vendored/africa_g2p/` code (`*.py`) | Apache-2.0 | `LICENSE`. Upstream AfriSpeech/africa-g2p declares Apache-2.0 in its `pyproject.toml`. |
-| `scriptconv_nonfree/phonemizers/_vendored/africa_g2p/languages/*.json`, `data/*.json` | `LicenseRef-AfricaG2P-Data`: no licence grant | `DATA_LICENSE.md` and `LICENSE.md` in that directory |
 | every other file | Apache-2.0 | `LICENSE` |
+
+`LicenseRef-AfricaG2P-Data` is the language data of the installed africa-g2p distribution, which the `africa` and `ghana` backends load. This package holds no copy of it. The code of africa-g2p is Apache-2.0, but its rule tables have no licence grant. `LICENSE.africa-g2p-data.md` states the terms and quotes the upstream data notice.
 
 The CC-BY-NC-4.0 files and the africa-g2p data are not for commercial use. The dependencies of each backend keep their own licences.

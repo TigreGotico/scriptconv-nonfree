@@ -14,7 +14,7 @@ MOVED = {
     _P.HALABI: (f"{_BASE}.ar", "HalabiPhonemizer", "ar-phonemizers"),
     _P.IQRA: (f"{_BASE}.ar", "IqraPhonemizer", "ar-phonemizers"),
     _P.VIPHONEME: (f"{_BASE}.vi", "VIPhonemePhonemizer", "vi"),
-    _P.AFRICA_G2P: (f"{_BASE}.africa", "AfricaG2PPhonemizer", None),
+    _P.AFRICA_G2P: (f"{_BASE}.africa", "AfricaG2PPhonemizer", "africa"),
     _P.GHANA_G2P: (f"{_BASE}.ghana", "GhanaG2PPhonemizer", "ghana"),
 }
 
