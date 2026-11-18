@@ -11,6 +11,16 @@ from functools import partial
 NUM_REGEX = re.compile(r"\d+(?:\.\d+)?")
 PERCENT_NO_DIAC = "بالمئة"
 
+# The longest digit run that is still one quantity the Arabic number tables
+# speak with their own scale words: the top entry of ``_SCALES_AR`` is
+# تريليون, 10**12 (``ovos_number_parser/numbers_ar.py``), so 15 digits
+# (10**15 - 1) is the largest value they compose. Beyond it the tables recycle
+# their scale words ("ألف تريليون"), and no speaker reads such a run as one
+# quantity: it is read digit by digit, each digit with its own word.
+MAX_QUANTITY_DIGITS = 15
+# The word pronounce_number puts between the parts of a decimal (فاصلة).
+DECIMAL_SEPARATOR_WORD = "فاصلة"
+
 # Arabic-Indic (U+0660-0669) and Extended Arabic-Indic (U+06F0-06F9) -> ASCII
 _DIGIT_TABLE = {0x0660 + i: str(i) for i in range(10)}
 _DIGIT_TABLE.update({0x06F0 + i: str(i) for i in range(10)})
@@ -24,10 +34,26 @@ def normalize_digits(text: str) -> str:
     return text.translate(_DIGIT_TABLE)
 
 
+def _read_digit_by_digit(digits: str) -> str:
+    """Read a digit run as separate digits, one number word each."""
+    from ovos_number_parser import pronounce_number
+    return " ".join(pronounce_number(int(digit), lang="ar")
+                    for digit in digits)
+
+
 def _convert_num2words(m: re.Match, *, apply_tashkeel):
     from ovos_number_parser import pronounce_number
     number = m.group(0)
-    value = float(number) if "." in number else int(number)
+    whole, _, fraction = number.partition(".")
+    if len(whole) > MAX_QUANTITY_DIGITS:
+        # Too long to be one quantity. ``int()`` would also refuse a run over
+        # its own string-conversion limit, so the digits are read one by one.
+        words = _read_digit_by_digit(whole)
+        if fraction:
+            words += " " + DECIMAL_SEPARATOR_WORD + " " + \
+                _read_digit_by_digit(fraction)
+        return words
+    value = float(number) if fraction else int(number)
     return pronounce_number(value, lang="ar")
 
 
