@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.2.1a1](https://github.com/TigreGotico/scriptconv-nonfree/tree/0.2.1a1) (2026-11-18)
+
+[Full Changelog](https://github.com/TigreGotico/scriptconv-nonfree/compare/0.2.0a1...0.2.1a1)
+
+**Merged pull requests:**
+
+- fix: mantoq reads a digit run over 15 digits digit by digit instead of crashing [\#4](https://github.com/TigreGotico/scriptconv-nonfree/pull/4) ([openvoiceos-bot](https://github.com/openvoiceos-bot))
+
 ## [0.2.0a1](https://github.com/TigreGotico/scriptconv-nonfree/tree/0.2.0a1) (2026-11-16)
 
 [Full Changelog](https://github.com/TigreGotico/scriptconv-nonfree/compare/0.1.0a1...0.2.0a1)
