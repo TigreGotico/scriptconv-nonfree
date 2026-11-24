@@ -206,5 +206,25 @@ class TestMantoqHalabiLabelingIsAccurate(unittest.TestCase):
                           halabi.phonemize_string(EXAMPLE, "ar"))
 
 
+class TestTheh(unittest.TestCase):
+    """Halabi's notation writes ث as ``^`` (IPA θ). The standard Buckwalter
+    table of scriptconv.notation writes it as ``v``, which the phonetiser
+    does not read."""
+
+    def test_each_theh_keeps_its_phoneme(self):
+        word = "ثلاثة"
+        for member in (Phonemizer.MANTOQ, Phonemizer.HALABI, Phonemizer.IQRA):
+            with self.subTest(member=member.value):
+                result = get_phonemizer(member, alphabet=Alphabet.HALABI).phonemize_string(word, "ar")
+                self.assertEqual(result.count("^"), word.count("ث"), result)
+
+    def test_halabi_reads_theh_as_iqra_does(self):
+        word = "ثَوْب"
+        expected = get_phonemizer(Phonemizer.IQRA, alphabet=Alphabet.HALABI).phonemize_string(word, "ar")
+        self.assertEqual(expected, "^ a w b")
+        result = get_phonemizer(Phonemizer.HALABI, alphabet=Alphabet.HALABI).phonemize_string(word, "ar")
+        self.assertEqual(result, expected)
+
+
 if __name__ == "__main__":
     unittest.main()

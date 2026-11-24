@@ -63,9 +63,7 @@ iqra marħabaːbilʕaːlam
 
 ```
 
-`mantoq` and `halabi` drop the letter ث
-([#5](https://github.com/TigreGotico/scriptconv-nonfree/issues/5)). `iqra`
-writes it as `^`.
+All three write the letter ث as `^`, which `Alphabet.IPA` gives as `θ`.
 
 ### mantoq
 
