@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.2.1a2](https://github.com/TigreGotico/scriptconv-nonfree/tree/0.2.1a2) (2026-11-24)
+
+[Full Changelog](https://github.com/TigreGotico/scriptconv-nonfree/compare/0.2.1a1...0.2.1a2)
+
+**Merged pull requests:**
+
+- docs: README, docs index, navigation and agent hints [\#6](https://github.com/TigreGotico/scriptconv-nonfree/pull/6) ([openvoiceos-bot](https://github.com/openvoiceos-bot))
+
 ## [0.2.1a1](https://github.com/TigreGotico/scriptconv-nonfree/tree/0.2.1a1) (2026-11-18)
 
 [Full Changelog](https://github.com/TigreGotico/scriptconv-nonfree/compare/0.2.0a1...0.2.1a1)
