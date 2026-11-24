@@ -9,7 +9,14 @@ import re
 
 # Arabic \u2194 Buckwalter script conversion is delegated to scriptconv.notation,
 # which is the org-wide notation-transcoding library.
-from scriptconv.notation import arabic_to_buckwalter, buckwalter_to_arabic
+from scriptconv.notation import arabic_to_buckwalter as standard_arabic_to_buckwalter
+from scriptconv.notation import buckwalter_to_arabic
+
+
+def arabic_to_buckwalter(arabic):
+    # The phonetiser reads Halabi's Buckwalter, which writes ث as "^" where the
+    # standard table writes "v". A "v" already in the text stays as it is.
+    return "".join(ch if ch == "v" else standard_arabic_to_buckwalter(ch).replace("v", "^") for ch in arabic)
 
 
 # ----------------------------------------------------------------------------
