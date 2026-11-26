@@ -66,8 +66,8 @@ class TestGhanaG2PPhonemizer(unittest.TestCase):
 
     def test_engine_is_cached_per_language(self):
         p = GhanaG2PPhonemizer()
-        first = p._engine("twi")
-        self.assertIs(p._engine("twi"), first)
+        first = p._engine("twi", "twi")
+        self.assertIs(p._engine("twi", "twi"), first)
 
     def test_rejects_unsupported_alphabet(self):
         with self.assertRaises(ValueError):
@@ -81,7 +81,7 @@ class TestOneAfricaG2P(unittest.TestCase):
     def test_both_backends_read_one_africa_g2p(self):
         # ghana-g2p imports africa_g2p.G2P; the africa backend must run the
         # same class from the same installed distribution.
-        engine = AfricaG2PPhonemizer()._engine("yor")
+        engine = AfricaG2PPhonemizer()._engine("yor", "yor")
         self.assertIs(type(engine.g2p), ghana_g2p.core.G2P)
         loaded_by_ghana = sys.modules[ghana_g2p.core.G2P.__module__.partition(".")[0]]
         self.assertEqual(AfricaG2PPhonemizer().identity("yor").version,
@@ -106,6 +106,12 @@ class TestDraftTables(unittest.TestCase):
                                        "ghana-g2p: .*table 'gaa' for 'ada'.*'llm-draft'.*allow_draft_rules"):
             # Adangme borrows the Ga table.
             GhanaG2PPhonemizer().phonemize_string("a", "ada")
+
+    def test_a_draft_refusal_names_the_caller_tag(self):
+        with mock.patch.object(africa_g2p.loader, "load_rules",
+                               return_value={"confidence": "llm-draft"}), \
+                self.assertRaisesRegex(UnsupportedLanguageError, "table 'gaa' for 'ada-GH'"):
+            GhanaG2PPhonemizer().phonemize_string("a", "ada-GH")
 
     def test_get_lang_answers_on_the_class(self):
         self.assertEqual(GhanaG2PPhonemizer.get_lang("twi-GH"), "twi")

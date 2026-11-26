@@ -109,12 +109,12 @@ class AfricaG2PPhonemizer(BasePhonemizer):
         self.allow_draft_rules = allow_draft_rules
         self._cache: dict[str, object] = {}
 
-    def _engine(self, resolved_lang: str):
+    def _engine(self, resolved_lang: str, target_lang: str):
         """Return, lazily creating and caching, the pipeline for *resolved_lang*. A draft table is refused unless
         the instance was built with ``allow_draft_rules=True``."""
         if resolved_lang not in self._cache:
             if not self.allow_draft_rules:
-                refuse_draft(resolved_lang, resolved_lang, "africa-g2p")
+                refuse_draft(resolved_lang, target_lang, "africa-g2p")
             output = "ipa" if self.alphabet == Alphabet.IPA else "grapheme"
             self._cache[resolved_lang] = _africa_g2p().AfricaPipeline(
                 lang=resolved_lang, output=output)
@@ -166,4 +166,4 @@ class AfricaG2PPhonemizer(BasePhonemizer):
         raise UnsupportedLanguageError(f"africa-g2p: unsupported language {target_lang!r}")
 
     def phonemize_string(self, text: str, lang: str) -> str:
-        return self._engine(self.get_lang(lang)).run(text, sep=" ")
+        return self._engine(self.get_lang(lang), lang).run(text, sep=" ")

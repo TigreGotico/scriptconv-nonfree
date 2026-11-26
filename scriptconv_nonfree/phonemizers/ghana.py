@@ -69,12 +69,12 @@ class GhanaG2PPhonemizer(BasePhonemizer):
         self.allow_draft_rules = allow_draft_rules
         self._cache: dict[str, object] = {}
 
-    def _engine(self, resolved_lang: str):
+    def _engine(self, resolved_lang: str, target_lang: str):
         """Return, lazily creating and caching, the engine for *resolved_lang*. A language on a draft africa-g2p
         table is refused unless the instance was built with ``allow_draft_rules=True``."""
         if resolved_lang not in self._cache:
             if not self.allow_draft_rules:
-                refuse_draft(_rule_tables()[resolved_lang], resolved_lang, "ghana-g2p")
+                refuse_draft(_rule_tables()[resolved_lang], target_lang, "ghana-g2p")
             self._cache[resolved_lang] = _ghana_g2p().GhanaG2P(resolved_lang)
         return self._cache[resolved_lang]
 
@@ -103,7 +103,7 @@ class GhanaG2PPhonemizer(BasePhonemizer):
         return key
 
     def phonemize_string(self, text: str, lang: str) -> str:
-        engine = self._engine(self.get_lang(lang))
+        engine = self._engine(self.get_lang(lang), lang)
         if self.alphabet == Alphabet.IPA:
             return engine.ipa(text, sep=" ")
         return engine.grapheme(text, sep=" ")

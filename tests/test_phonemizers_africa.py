@@ -68,11 +68,11 @@ class TestAfricaG2PPhonemizer(unittest.TestCase):
 
     def test_engine_is_cached_per_language(self):
         p = AfricaG2PPhonemizer()
-        first = p._engine("yor")
-        self.assertIs(p._engine("yor"), first)
+        first = p._engine("yor", "yor")
+        self.assertIs(p._engine("yor", "yor"), first)
 
     def test_the_engine_is_the_installed_africa_g2p(self):
-        engine = AfricaG2PPhonemizer()._engine("yor")
+        engine = AfricaG2PPhonemizer()._engine("yor", "yor")
         self.assertIs(type(engine.g2p), africa_g2p.G2P)
 
     def test_identity_names_the_africa_g2p_release(self):
@@ -119,8 +119,10 @@ class TestDraftTables(unittest.TestCase):
         self.assertEqual(AfricaG2PPhonemizer.get_lang("aab"), "aab")
         with self.assertRaisesRegex(UnsupportedLanguageError, "'aab'.*'llm-draft'.*allow_draft_rules"):
             p.phonemize_string("aba", "aab")
-        with self.assertRaisesRegex(UnsupportedLanguageError, "llm-draft"):
-            p.phonemize_string("aba", "aab")
+
+    def test_a_draft_refusal_names_the_caller_tag(self):
+        with self.assertRaisesRegex(UnsupportedLanguageError, "table 'aab' for 'aab-NG'"):
+            AfricaG2PPhonemizer().phonemize_string("aba", "aab-NG")
 
     def test_a_draft_only_language_runs_with_the_flag(self):
         p = AfricaG2PPhonemizer(allow_draft_rules=True)
