@@ -26,7 +26,7 @@ dependencies of the backend.
 | `iqra` | `IqraPhonemizer` | `scriptconv_nonfree.phonemizers.ar` | `ar-phonemizers` | `ar` |
 | `viphoneme` | `VIPhonemePhonemizer` | `scriptconv_nonfree.phonemizers.vi` | `vi` | `vi` |
 | `africa_g2p` | `AfricaG2PPhonemizer` | `scriptconv_nonfree.phonemizers.africa` | `africa` | the rule tables of africa-g2p, by ISO 639-3 code |
-| `ghana_g2p` | `GhanaG2PPhonemizer` | `scriptconv_nonfree.phonemizers.ghana` | `ghana` | the 42 languages of ghana-g2p |
+| `ghana_g2p` | `GhanaG2PPhonemizer` | `scriptconv_nonfree.phonemizers.ghana` | `ghana` | the languages of ghana-g2p |
 
 No backend of this package downloads a file. The Arabic phonetisers are in
 this package, and africa-g2p and ghana-g2p hold their rule tables in their
@@ -74,9 +74,10 @@ distribution when there is one, and the copy in
 `scriptconv_nonfree/phonemizers/_vendored/mantoq` when there is not. The copy
 has no diacritizer.
 
-The class default is `Alphabet.BUCKWALTER`, a historical name for the mantoq
-tokens. `Alphabet.HALABI` gives the same string, and `Alphabet.IPA` converts
-it.
+The class default is `Alphabet.BUCKWALTER`. With it, you get the mantoq
+tokens, which use the Halabi notation of the phonetiser. They are not the
+Buckwalter transliteration of Arabic. `Alphabet.HALABI` gives the same
+string, and `Alphabet.IPA` converts it to IPA.
 
 ### halabi
 
@@ -146,7 +147,8 @@ value is in `SERVED_CONFIDENCE`: `omniglot`, `high`, `medium` and
 Africa* (UNESCO, 1993), and `tts-reviewed` is such a chart with corrections
 that an LLM proposed. Every other value is a draft, for example `llm-draft`.
 The backend refuses a draft table with `UnsupportedLanguageError` unless you
-build it with `allow_draft_rules=True`. With africa-g2p 0.3.5:
+build it with `allow_draft_rules=True`. The counts depend on the installed
+africa-g2p release. The output below comes from africa-g2p 0.3.5:
 
 ```python
 >>> from scriptconv_nonfree.phonemizers.africa import AfricaG2PPhonemizer, draft_status
@@ -157,7 +159,7 @@ build it with `allow_draft_rules=True`. With africa-g2p 0.3.5:
 
 ```
 
-The five `tts-reviewed` tables are Dagbani (`dag`), Ewe (`ewe`), Fante
+In africa-g2p 0.3.5, the `tts-reviewed` tables are Dagbani (`dag`), Ewe (`ewe`), Fante
 (`fat`), Ga (`gaa`) and Twi (`twi`). No native speaker has checked their
 corrections.
 
@@ -178,7 +180,7 @@ licence grant and are not for commercial use. See
 ## ghana_g2p
 
 `GhanaG2PPhonemizer` wraps ghana-g2p (GhanaNLP/ghana-g2p), which builds on the
-rule tables of africa-g2p for 42 Ghanaian languages. It normalises look-alike
+rule tables of africa-g2p for Ghanaian languages. It normalises look-alike
 code points, patches missing letters, and borrows a related rule set for a
 language that africa-g2p lacks. It loads the same installed africa-g2p as
 `africa_g2p`. The alphabets are the same as for `africa_g2p`:
@@ -194,8 +196,15 @@ language that africa-g2p lacks. It loads the same installed africa-g2p as
 
 `get_lang` matches only the primary subtag, exactly, and does not map ISO
 639-1 codes: `ee` is not `ewe`. A language whose africa-g2p table is a draft
-is refused unless you pass `allow_draft_rules=True`. All 42 languages of
-ghana-g2p 0.1.1 are served by default.
+is refused unless you pass `allow_draft_rules=True`. With ghana-g2p 0.1.1 and
+africa-g2p 0.3.5, the backend serves all languages by default. To see the
+languages that your installed releases serve, run this command. The output below comes from ghana-g2p 0.1.1:
+
+```python
+>>> from scriptconv_nonfree.phonemizers.ghana import GhanaG2PPhonemizer
+>>> len(GhanaG2PPhonemizer.supported_langs()), len(GhanaG2PPhonemizer.supported_langs(allow_draft_rules=True))
+(42, 42)
+```
 
 Licence: ghana-g2p is Apache-2.0, but it loads the rule tables of africa-g2p,
 which have no licence grant.
