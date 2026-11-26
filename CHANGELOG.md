@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.2.3a2](https://github.com/TigreGotico/scriptconv-nonfree/tree/0.2.3a2) (2026-11-26)
+
+[Full Changelog](https://github.com/TigreGotico/scriptconv-nonfree/compare/0.2.3a1...0.2.3a2)
+
+**Merged pull requests:**
+
+- docs: fix the issue \#8 docs defects; name the caller tag in draft refusals [\#10](https://github.com/TigreGotico/scriptconv-nonfree/pull/10) ([openvoiceos-bot](https://github.com/openvoiceos-bot))
+
 ## [0.2.3a1](https://github.com/TigreGotico/scriptconv-nonfree/tree/0.2.3a1) (2026-11-26)
 
 [Full Changelog](https://github.com/TigreGotico/scriptconv-nonfree/compare/0.2.2a1...0.2.3a1)
