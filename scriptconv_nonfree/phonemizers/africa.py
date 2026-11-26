@@ -110,8 +110,11 @@ class AfricaG2PPhonemizer(BasePhonemizer):
         self._cache: dict[str, object] = {}
 
     def _engine(self, resolved_lang: str):
-        """Return, lazily creating and caching, the pipeline for *resolved_lang*."""
+        """Return, lazily creating and caching, the pipeline for *resolved_lang*. A draft table is refused unless
+        the instance was built with ``allow_draft_rules=True``."""
         if resolved_lang not in self._cache:
+            if not self.allow_draft_rules:
+                refuse_draft(resolved_lang, resolved_lang, "africa-g2p")
             output = "ipa" if self.alphabet == Alphabet.IPA else "grapheme"
             self._cache[resolved_lang] = _africa_g2p().AfricaPipeline(
                 lang=resolved_lang, output=output)
@@ -124,9 +127,11 @@ class AfricaG2PPhonemizer(BasePhonemizer):
             return _africa_g2p().available_languages()
         return list(_served_tables())
 
-    def get_lang(self, target_lang: str) -> str:
+    @classmethod
+    def get_lang(cls, target_lang: str) -> str:
         """
-        Resolve *target_lang* to an africa-g2p rule table.
+        Resolve *target_lang* to an africa-g2p rule table. A draft table
+        resolves too: the instance refuses it at first use.
 
         Two exact lookups, in order, and no fuzzing (africa-g2p keys its rule
         files by name, not by BCP-47 macrolanguage/region mapping, so
@@ -148,8 +153,7 @@ class AfricaG2PPhonemizer(BasePhonemizer):
 
         Raises:
             UnsupportedLanguageError: If africa-g2p has no rule table for
-                *target_lang*, or if the table is a draft and the instance
-                was not built with ``allow_draft_rules=True``.
+                *target_lang*.
         """
         tables = _africa_g2p().available_languages()
         lowered = target_lang.lower()
@@ -158,8 +162,6 @@ class AfricaG2PPhonemizer(BasePhonemizer):
         # tried as written before ``_`` is read as ``-``.
         for table in (lowered, lowered.replace("_", "-"), _primary_subtag(target_lang)):
             if table in tables:
-                if not self.allow_draft_rules:
-                    refuse_draft(table, target_lang, "africa-g2p")
                 return table
         raise UnsupportedLanguageError(f"africa-g2p: unsupported language {target_lang!r}")
 

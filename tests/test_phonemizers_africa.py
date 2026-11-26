@@ -116,8 +116,9 @@ class TestDraftTables(unittest.TestCase):
     def test_a_draft_only_language_is_refused_by_default(self):
         self.assertEqual(_confidence_by_table()["aab"], "llm-draft")
         p = AfricaG2PPhonemizer()
+        self.assertEqual(AfricaG2PPhonemizer.get_lang("aab"), "aab")
         with self.assertRaisesRegex(UnsupportedLanguageError, "'aab'.*'llm-draft'.*allow_draft_rules"):
-            p.get_lang("aab")
+            p.phonemize_string("aba", "aab")
         with self.assertRaisesRegex(UnsupportedLanguageError, "llm-draft"):
             p.phonemize_string("aba", "aab")
 
@@ -130,7 +131,7 @@ class TestDraftTables(unittest.TestCase):
     def test_the_refusal_names_the_africa_g2p_release(self):
         with self.assertRaisesRegex(UnsupportedLanguageError,
                                     f"africa-g2p {metadata.version('africa-g2p')} "):
-            AfricaG2PPhonemizer().get_lang("aab")
+            AfricaG2PPhonemizer().phonemize_string("aba", "aab")
 
     def test_the_corrected_charts_are_served_by_default(self):
         # Dagbani, Ewe, Fante, Ga and Twi: Omniglot charts with corrections an
@@ -180,7 +181,7 @@ class TestRegionTables(unittest.TestCase):
         # tables for Hausa stay under their region names.
         self.assertEqual(_confidence_by_table()["hau"], "llm-draft")
         with self.assertRaisesRegex(UnsupportedLanguageError, "'hau'.*'llm-draft'"):
-            AfricaG2PPhonemizer().get_lang("hau")
+            AfricaG2PPhonemizer().phonemize_string("a", "hau")
         self.assertEqual(AfricaG2PPhonemizer(allow_draft_rules=True).get_lang("hau"), "hau")
         self.assertEqual(AfricaG2PPhonemizer(allow_draft_rules=True).get_lang("hau-NG"), "hau")
 
@@ -247,7 +248,7 @@ def test_a_served_confidence_value_needs_no_flag(value, backend, lang):
 def test_llm_draft_needs_the_flag(backend, lang):
     with _with_confidence("llm-draft"):
         with pytest.raises(UnsupportedLanguageError, match="'llm-draft'.*allow_draft_rules"):
-            backend().get_lang(lang)
+            backend().phonemize_string("a", lang)
         assert backend(allow_draft_rules=True).get_lang(lang) == lang
 
 
@@ -255,7 +256,7 @@ def test_llm_draft_needs_the_flag(backend, lang):
 def test_a_confidence_value_nobody_listed_needs_the_flag(backend, lang):
     with _with_confidence("native-reviewed"):
         with pytest.raises(UnsupportedLanguageError, match="'native-reviewed'"):
-            backend().get_lang(lang)
+            backend().phonemize_string("a", lang)
         assert backend(allow_draft_rules=True).get_lang(lang) == lang
 
 
