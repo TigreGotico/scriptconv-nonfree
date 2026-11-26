@@ -70,8 +70,11 @@ class GhanaG2PPhonemizer(BasePhonemizer):
         self._cache: dict[str, object] = {}
 
     def _engine(self, resolved_lang: str):
-        """Return, lazily creating and caching, the engine for *resolved_lang*."""
+        """Return, lazily creating and caching, the engine for *resolved_lang*. A language on a draft africa-g2p
+        table is refused unless the instance was built with ``allow_draft_rules=True``."""
         if resolved_lang not in self._cache:
+            if not self.allow_draft_rules:
+                refuse_draft(_rule_tables()[resolved_lang], resolved_lang, "ghana-g2p")
             self._cache[resolved_lang] = _ghana_g2p().GhanaG2P(resolved_lang)
         return self._cache[resolved_lang]
 
@@ -81,24 +84,22 @@ class GhanaG2PPhonemizer(BasePhonemizer):
         return [code for code, table in _rule_tables().items()
                 if allow_draft_rules or draft_status(table) is None]
 
-    def get_lang(self, target_lang: str) -> str:
+    @classmethod
+    def get_lang(cls, target_lang: str) -> str:
         """
-        Resolve *target_lang* to a ghana-g2p ISO 639-3 code.
+        Resolve *target_lang* to a ghana-g2p ISO 639-3 code. A language on a
+        draft table resolves too: the instance refuses it at first use.
 
         Only the primary subtag is matched, exactly (``twi-GH`` -> ``twi``).
         ISO 639-1 tags are not mapped (``ee`` is not ``ewe``).
 
         Raises:
-            UnsupportedLanguageError: If ghana-g2p has no such language, or if
-                its africa-g2p table is a draft and the instance was not
-                built with ``allow_draft_rules=True``.
+            UnsupportedLanguageError: If ghana-g2p has no such language.
         """
         key = _primary_subtag(target_lang)
         tables = _rule_tables()
         if key not in tables:
             raise UnsupportedLanguageError(f"ghana-g2p: unsupported language {target_lang!r}")
-        if not self.allow_draft_rules:
-            refuse_draft(tables[key], target_lang, "ghana-g2p")
         return key
 
     def phonemize_string(self, text: str, lang: str) -> str:

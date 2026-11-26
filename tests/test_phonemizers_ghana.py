@@ -105,7 +105,10 @@ class TestDraftTables(unittest.TestCase):
                 self.assertRaisesRegex(UnsupportedLanguageError,
                                        "ghana-g2p: .*table 'gaa' for 'ada'.*'llm-draft'.*allow_draft_rules"):
             # Adangme borrows the Ga table.
-            GhanaG2PPhonemizer().get_lang("ada")
+            GhanaG2PPhonemizer().phonemize_string("a", "ada")
+
+    def test_get_lang_answers_on_the_class(self):
+        self.assertEqual(GhanaG2PPhonemizer.get_lang("twi-GH"), "twi")
 
 
 if __name__ == "__main__":
