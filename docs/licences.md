@@ -17,7 +17,7 @@ use.
 
 The scriptconv wheel holds only permissive code: Apache-2.0, MIT and the
 CMUdict licence. No extra of scriptconv pulls a non-commercial distribution
-directly. The `ar-phonemizers`, `africa` and `ghana` extras of scriptconv
+directly. The `ar-phonemizers`, `africa`, `ghana` and `vi` extras of scriptconv
 install scriptconv-nonfree, and this package holds the non-commercial items.
 The scriptconv
 [Licensing section](https://github.com/TigreGotico/scriptconv/blob/dev/README.md#licensing)
