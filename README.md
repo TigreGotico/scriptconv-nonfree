@@ -34,16 +34,9 @@ African backends and the draft rule tables.
 
 ## Backends
 
-| `Phonemizer` values | scriptconv extra | Restricted item |
-| --- | --- | --- |
-| `mantoq`, `halabi`, `iqra` | `ar-phonemizers` | the Arabic-Phonetiser of Nawar Halabi, CC-BY-NC-4.0 |
-| `viphoneme` | `vi` | viphoneme and vinorm, "Free for non-commercial use" |
-| `africa_g2p` | `africa` | the africa-g2p rule tables, with no licence grant |
-| `ghana_g2p` | `ghana` | the same rule tables, which ghana-g2p loads |
-
-scriptconv never picks one of these backends by default: the Arabic default
-is arbtok. The [backend reference](docs/backends.md) gives the languages,
-alphabets and parameters of each backend.
+The backends are `mantoq`, `halabi` and `iqra` (extra `ar-phonemizers`),
+`viphoneme` (`vi`), `africa_g2p` (`africa`) and `ghana_g2p` (`ghana`).
+scriptconv never picks one of them by default.
 
 ## Licence
 
@@ -57,6 +50,10 @@ gives the restricted item of each backend and the licence of each file.
 
 ## Documentation
 
-The [documentation index](docs/index.md) lists every page in reading order.
-The [scriptconv documentation](https://github.com/TigreGotico/scriptconv/tree/dev/docs)
-explains the phonemizer contract and the other backends.
+| Page | Read it for |
+| --- | --- |
+| [docs/getting-started.md](docs/getting-started.md) | install, the alphabets, the draft rule tables |
+| [docs/how-it-works.md](docs/how-it-works.md) | how scriptconv finds and imports these backends |
+| [docs/backends.md](docs/backends.md) | the languages, alphabets and parameters of each backend |
+| [docs/licences.md](docs/licences.md) | the restricted item of each backend, the licence of each file |
+| [docs/index.md](docs/index.md) | every page in reading order |
